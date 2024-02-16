@@ -1,0 +1,199 @@
+<!-- This web was written by Pablo Martínez pmartinezr@proton.me, All Rights are Reserved -->
+<html>
+  {% load static %}
+  <head>
+    <!--include jquery-->
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+    <!-- <script>document.getElementById("zoom_value_name")[0].addEventListener('change', setZoomValue);</script>-->
+    <script>
+      text = "{{data}}";
+      /*//trackerdata = "{{Tracker}}";
+     
+      {% for track in Tracker %}  
+        console.log({{track.deviceID}});
+        console.log({{track.location}});
+        console.log({{track.logtime}});
+      {% endfor %} */
+
+      var text = text.replace(/&quot;/g, '\"');
+      points_data = JSON.parse(text); 
+      //console.log(points_data);
+      deviceID = points_data[0]["deviceID"];
+      //document.getElementById("thetitle").setAttribute("value") = deviceID;
+      //document.getElementById('mylabel').setAttribute('title', "testeseste");
+      //console.log(deviceID);
+    </script>
+
+  <script>
+    function setZoomValue(value) {
+      //var zoom_value = document.getElementById("zoom_value");
+      var zoom_value = value;
+      //zoom_map = zoom_value.getAttribute("value");
+      zoom_map = zoom_value;
+      //console.log(zoom_value); 
+      return zoom_map;
+    }
+  </script> 
+    <script>
+      function calculateRadiusCircleValue(value) {
+        //var zoom_value = document.getElementById("zoom_value");
+        //var radius = 5;
+        //zoom_map = zoom_value.getAttribute("value");
+        if (value < 10){
+          radius = value/3;
+        }
+        if (value < 15){
+          radius = value/4;
+        }
+        if (value > 15){
+          radius = value/5;
+        }
+        
+            
+        console.log(value);
+        console.log(radius);
+        return radius;
+      }
+    </script>       
+
+    <meta id="refresh_rate" http-equiv="refresh" content="20">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
+    <label id='mylabel'>TEST</label>
+    <title>deviceID</title>    
+ 
+    
+    <!--<script> 
+      //script for relaod the mapdiv
+      $(document).ready(function(){
+      setInterval(function(){
+          $("#map").load("#map");
+      }, 20000);
+      });
+    </script>-->
+  </head>
+
+ <body>
+  Refresh Eeach <input type="text" style="width: 40px;" value="20">s
+  Zoom <input id="zoom_value" name="zoom_value_name" type="text" value="20" style="width: 40px;"></input><button onclick="setZoomValue(getElementById('zoom_value').getAttribute('value'))">+</button><button>-</button>
+
+ <br>
+  <!--OpenLayers Map stuff-->
+ <!--<script src="http://www.openlayers.org/api/OpenLayers.js"></script>-->
+ <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+ <!--<div id="map" style="width: 1600px;height: 800px;"></div>-->
+ <div id="map"></div>
+ <!-- seems js script for the map needs to go after the div -->
+  <!--<script src="{% static 'osmmap.js' %}"></script>-->
+  <script>
+    //create the points from the points_data variable
+    zoom_map = 16;
+     
+    features = [];
+    for (var i = 0; i < points_data.length; i++) {
+        lat_point = points_data[i]["lat"];
+        lon_point = points_data[i]["lon"];
+        features.push(new ol.Feature({
+          geometry: new ol.geom.Point(ol.proj.fromLonLat([lon_point, lat_point]))
+        }));
+    }
+    //console.log(features);
+    // create the source and layer for features
+    vectorSource = new ol.source.Vector({
+      features
+    });
+
+   //create a vector layer and include the source
+    vectorLayer = new ol.layer.Vector({
+      source: vectorSource,
+      style: new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: calculateRadiusCircleValue(zoom_map),
+          fill: new ol.style.Fill({color: 'blue'})
+        })
+      })
+    });
+
+    //take last positions from the data
+    last_lat_point = points_data[points_data.length -1]["lat"];
+    last_lon_point = points_data[points_data.length -1]["lon"];
+    features_last = [];
+
+    //Draw the last position with a red circle and text
+    marker_target = new ol.layer.Vector({
+      source: new ol.source.Vector(),
+        style: new ol.style.Style({
+        /*  image: new ol.style.Circle({
+           radius:10,
+           fill: new ol.style.Fill({color: 'red'})
+            
+        }),*/
+        text: new ol.style.Text({
+          font: '20px sans-serif',
+          text: deviceID,
+          fill: new ol.style.Fill({
+            color: 'black'
+          }),
+          textAlign: 'center',
+          textBaseline: 'bottom',
+          offsetY: -5,
+        })
+      })
+    });
+
+    marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([last_lon_point, last_lat_point])));
+    marker_target.getSource().addFeature(marker);  
+
+    iconStyle = new ol.style.Style({
+      image: new ol.style.Icon({
+        opacity: 1,
+        src: "https://www.openstreetmap.org/openlayers/img/marker.png",
+        //src: '../static/marker.png'
+        scale: 1,
+      })
+    }); 
+    
+    //new test with icon
+    iconFeature = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([last_lon_point, last_lat_point])),
+    });
+
+    iconFeature.setStyle(iconStyle);
+
+    vectorIconSource = new ol.source.Vector({
+      iconFeature
+    });
+
+    iconVectorLayer = new ol.layer.Vector({
+        source: vectorIconSource,
+    });
+
+    iconVectorLayer.getSource().addFeature(iconFeature);  
+
+
+    // create map and add layers
+    map = new ol.Map({
+      target: 'map',
+
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        vectorLayer,
+        marker_target,
+        iconVectorLayer
+        // vectorLayer_last,     
+      ],
+
+      view: new ol.View({
+        center: ol.proj.fromLonLat([last_lon_point, last_lat_point]),
+        zoom: setZoomValue(zoom_map)
+      })
+    });
+    
+
+
+</script>
+
+</body>
+</html>

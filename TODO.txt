@@ -1,0 +1,45 @@
+####ROAD MAP###########
+
+Android apk - should have a config for token 
+
+Track devices collector server (or just use model and post method?)
+
+Database  devices, users, token  for advanced product development both sides auth, etc
+
+Encrytion coms protocol, could be easy done 
+
+Show tracked routes in map, import/export tracked data features, etc
+
+
+Next stages
+################################
+- Better understanding of Django modeLs (see if i need to move code to model)
+- Multiple markers on map!!! 
+https://stackoverflow.com/questions/60775622/draw-point-on-map-given-coordinates-with-openlayers
+https://observablehq.com/@chonghorizons/fork-of-openlayers-to-put-some-markers-features-on
+
+
+POCs actually working
+#########################
+Basic apk - OK
+Server Handler post client request - OK
+Track devices in database - OK
+Coms without encryption (POST data) OK
+View Map in web - OK 
+
+Features
+#############################
+Route track
+
+What Django Web should be?:
+############################
+Dashboard:
+    General view and statics
+    Devices table refreshing
+    User settings, token should be obtain from here
+
+Map:
+ multiple or single mode - Singel at this time
+ zoom and center parameters - Could be done
+ Track  devices - Yes 
+

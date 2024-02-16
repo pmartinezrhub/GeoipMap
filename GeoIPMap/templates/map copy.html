@@ -1,0 +1,110 @@
+<html>
+  <head>
+    <script>
+      console.log({{data}});
+    </script>
+    <meta http-equiv="refresh" content="10">
+    
+    <!--<title>{{deviceID}}</title>-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+    <!--<script> 
+      //script for relaod the mapdiv
+      $(document).ready(function(){
+      setInterval(function(){
+          $("#mapdiv").load("#mapdiv");
+      }, 20000);
+      });
+    </script>-->
+  </head>
+
+  <body>
+ <input type="textarea" value="{{track}}" style="width: 800px;"></input>
+ <br>
+ <input type="text" value="{{lat}}"></input><input type="text" value="{{lon}}"></input>
+ <!--OpenLayers Map stuff-->
+ <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+ <div id="mapdiv" style="width: 1600px;height: 800px;"></div>
+
+ <!-- seems js script for the map needs to go after the div -->
+ <!--  <script src="../static/osmmap.js"></script>-->
+
+ <script>
+
+var points_data_old = [{
+name: "Parking0001",
+lat: "42.8832",
+lon: "-8.329"
+},
+{
+name: "RecycleBin0001",
+lat: "42.8812",
+lon: "-8.519"
+},
+{
+name: "WaterA27",
+lat: "42.8832",
+lon: "-8.529"
+},
+{
+name: "WaterA12",
+lat: "42.5872",
+lon: "-8.559"
+}];
+//console.log(typeof(points_data_old));
+
+
+//console.log(typeof(points_data));
+//console.log(points_data);
+//const obj = JSON.parse(points_data); 
+
+/*for (var j= 0; j < obj.length(); j++){
+  console.log(obj[j]);
+} 
+console.log(typeof(points_data));
+
+
+/*var test = points2_data.split(",");
+
+console.log(points2_data)
+//console.log(test);
+
+//console.log(typeof(points2_data));
+/*for (var j = 0; j < points2_data.length; j++){
+   console.log(points2_data);
+}*/
+//console.log(points2_data);
+
+//seems 18 is max zoom
+ var zoom=8;  
+ var deviceID = "{{deviceID}}";
+ var lat = {{lat}};
+ var lon = {{lon}};
+ var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+ var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+ var position       = new OpenLayers.LonLat(lon, lat).transform( fromProjection, toProjection);
+
+ //console.log("deviceID: " + deviceID + " latitud: " +  lat +  " longitud: " + lon)
+ 
+ map = new OpenLayers.Map("mapdiv");
+ map.addLayer(new OpenLayers.Layer.OSM());
+
+ var markers = new OpenLayers.Layer.Markers("Markers");
+ map.addLayer(markers);
+ markers.addMarker(new OpenLayers.Marker(position));
+
+ for (var i = 0; i < points_data.length; i++) {
+    lat_point = points_data[i]["lat"];
+    lon_point = points_data[i]["lon"];
+    var position_point = new OpenLayers.LonLat(lon_point, lat_point).transform( fromProjection, toProjection);
+    var trackers = new OpenLayers.Layer.Markers("Trakers");
+    map.addLayer(trackers);
+    //trackers.addMarker(new OpenLayers.Marker(position_point));
+ }
+
+ map.setCenter (position, zoom);
+
+ </script>
+
+
+</body>
+</html>
